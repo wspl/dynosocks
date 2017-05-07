@@ -4,17 +4,26 @@ import (
 	"github.com/armon/go-socks5"
 	//kcp "github.com/xtaci/kcp-go"
 	"net"
-	"time"
+	//"time"
 	"github.com/xtaci/kcp-go"
 	"io"
 )
 
 func main() {
-	go server()
-	time.Sleep(1000)
+	//go server()
+	//time.Sleep(1000)
 	go cli()
 
 	<- make(chan bool)
+}
+
+func setKCP(conn *kcp.UDPSession) {
+	conn.SetStreamMode(true)
+	conn.SetWriteDelay(true)
+	conn.SetNoDelay(1, 10, 2, 1)
+	conn.SetWindowSize(128, 512)
+	conn.SetMtu(1350)
+	conn.SetACKNoDelay(true)
 }
 
 func cli() {
@@ -23,7 +32,10 @@ func cli() {
 
 	for {
 		tcpConn, _ := tcpListener.Accept()
-		conn, _ := kcp.DialWithOptions("127.0.0.1:9980", nil, 10, 3)
+		conn, _ := kcp.DialWithOptions("batman.vecsight.com:9980", nil, 10, 3)
+
+		setKCP(conn)
+
 		go pipe(conn, tcpConn)
 	}
 }
@@ -39,6 +51,7 @@ func server() {
 	//listener, _ := net.ListenTCP("tcp", zzbl_a)
 	for {
 		conn, _ := listener.AcceptKCP()
+		setKCP(conn)
 		saddr, _ := net.ResolveTCPAddr("tcp", "127.0.0.1:9527")
 		laddr, _ := net.ResolveTCPAddr("tcp", ":0")
 		socksCli, _ := net.DialTCP("tcp", laddr, saddr)
