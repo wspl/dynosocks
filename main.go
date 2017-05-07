@@ -7,11 +7,12 @@ import (
 	//"time"
 	"github.com/xtaci/kcp-go"
 	"io"
+	"time"
 )
 
 func main() {
-	//go server()
-	//time.Sleep(1000)
+	go server()
+	time.Sleep(1000)
 	go cli()
 
 	<- make(chan bool)
