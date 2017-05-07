@@ -18,12 +18,7 @@ func main() {
 }
 
 func setKCP(conn *kcp.UDPSession) {
-	conn.SetStreamMode(true)
-	conn.SetWriteDelay(true)
-	conn.SetNoDelay(1, 10, 2, 1)
-	conn.SetWindowSize(128, 512)
-	conn.SetMtu(1350)
-	conn.SetACKNoDelay(true)
+	conn.SetNoDelay(1, 20, 2, 1)
 }
 
 func cli() {
