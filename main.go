@@ -2,12 +2,10 @@ package main
 
 import (
 	"github.com/armon/go-socks5"
-	//kcp "github.com/xtaci/kcp-go"
 	"net"
-	//"time"
-	"github.com/xtaci/kcp-go"
 	"io"
 	"time"
+	"github.com/xtaci/kcp-go"
 )
 
 func main() {
@@ -27,17 +25,22 @@ func setKCP(conn *kcp.UDPSession) {
 	conn.SetACKNoDelay(true)
 }
 
+func getBlockCrypt() kcp.BlockCrypt {
+	bc, _ := kcp.NewXTEABlockCrypt([]byte{1,2,3,4,5,6,8})
+	return bc
+}
+
 func cli() {
 	laddr, _ := net.ResolveTCPAddr("tcp", ":1087")
 	tcpListener, _ := net.ListenTCP("tcp", laddr)
 
 	for {
 		tcpConn, _ := tcpListener.Accept()
-		conn, _ := kcp.DialWithOptions("batman.vecsight.com:9980", nil, 10, 3)
+		conn, _ := kcp.DialWithOptions("batman.vecsight.com:9980", getBlockCrypt(), 10, 3)
 
 		setKCP(conn)
 
-		go pipe(conn, tcpConn)
+		go xPipe(conn, tcpConn)
 	}
 }
 
@@ -48,7 +51,7 @@ func server() {
 		ss.ListenAndServe("tcp", "127.0.0.1:9527")
 	}()
 
-	listener, _ := kcp.ListenWithOptions(":9980", nil, 10, 3)
+	listener, _ := kcp.ListenWithOptions(":9980", getBlockCrypt(), 10, 3)
 	//listener, _ := net.ListenTCP("tcp", zzbl_a)
 	for {
 		conn, _ := listener.AcceptKCP()
@@ -58,11 +61,11 @@ func server() {
 		socksCli, _ := net.DialTCP("tcp", laddr, saddr)
 
 		println("remote accept", conn.RemoteAddr().String())
-		go pipe(conn, socksCli)
+		go xPipe(conn, socksCli)
 	}
 }
 
-func pipe(s1, s2 io.ReadWriteCloser) {
+func xPipe(s1, s2 io.ReadWriteCloser) {
 	defer s1.Close()
 	defer s2.Close()
 
