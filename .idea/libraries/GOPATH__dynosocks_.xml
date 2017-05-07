@@ -1,0 +1,17 @@
+<component name="libraryTable">
+  <library name="GOPATH &lt;dynosocks&gt;">
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/../github.com" />
+      <root url="file://$PROJECT_DIR$/../dragonite-go" />
+      <root url="file://$PROJECT_DIR$/../golang.org" />
+    </CLASSES>
+    <SOURCES>
+      <root url="file://$PROJECT_DIR$/../github.com" />
+      <root url="file://$PROJECT_DIR$/../dragonite-go" />
+      <root url="file://$PROJECT_DIR$/../golang.org" />
+    </SOURCES>
+    <excluded>
+      <root url="file://$PROJECT_DIR$" />
+    </excluded>
+  </library>
+</component>
