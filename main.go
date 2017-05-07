@@ -34,13 +34,17 @@ func cli() {
 	laddr, _ := net.ResolveTCPAddr("tcp", ":1087")
 	tcpListener, _ := net.ListenTCP("tcp", laddr)
 
-	for {
-		tcpConn, _ := tcpListener.Accept()
-		conn, _ := kcp.DialWithOptions("batman.vecsight.com:9980", getBlockCrypt(), 10, 3)
+	for i := 0; i< 8; i++ {
+		go func() {
+			for {
+				tcpConn, _ := tcpListener.Accept()
+				conn, _ := kcp.DialWithOptions("batman.vecsight.com:9980", getBlockCrypt(), 10, 3)
 
-		setKCP(conn)
+				setKCP(conn)
 
-		go xPipe(conn, tcpConn)
+				go xPipe(conn, tcpConn)
+			}
+		}()
 	}
 }
 
@@ -53,15 +57,20 @@ func server() {
 
 	listener, _ := kcp.ListenWithOptions(":9980", getBlockCrypt(), 10, 3)
 	//listener, _ := net.ListenTCP("tcp", zzbl_a)
-	for {
-		conn, _ := listener.AcceptKCP()
-		setKCP(conn)
-		saddr, _ := net.ResolveTCPAddr("tcp", "127.0.0.1:9527")
-		laddr, _ := net.ResolveTCPAddr("tcp", ":0")
-		socksCli, _ := net.DialTCP("tcp", laddr, saddr)
 
-		println("remote accept", conn.RemoteAddr().String())
-		go xPipe(conn, socksCli)
+	for i := 0; i< 8; i++ {
+		go func() {
+			for {
+				conn, _ := listener.AcceptKCP()
+				setKCP(conn)
+				saddr, _ := net.ResolveTCPAddr("tcp", "127.0.0.1:9527")
+				laddr, _ := net.ResolveTCPAddr("tcp", ":0")
+				socksCli, _ := net.DialTCP("tcp", laddr, saddr)
+
+				println("remote accept", conn.RemoteAddr().String())
+				go xPipe(conn, socksCli)
+			}
+		}()
 	}
 }
 
